@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		106F41B3C8EB164CCD6977BF /* Pods_ChatFirebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2C4E23D4F8240736063F849 /* Pods_ChatFirebase.framework */; };
+		DC40C6FB1F422FD4009AE3BA /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC40C6F91F422FD4009AE3BA /* Fabric.framework */; };
+		DC40C6FC1F422FD4009AE3BA /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC40C6FA1F422FD4009AE3BA /* Crashlytics.framework */; };
 		DC47688A1F406A890077500C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4768891F406A890077500C /* AppDelegate.swift */; };
 		DC47688C1F406A890077500C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC47688B1F406A890077500C /* ViewController.swift */; };
 		DC47688F1F406A890077500C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DC47688D1F406A890077500C /* Main.storyboard */; };
@@ -38,6 +40,8 @@
 /* Begin PBXFileReference section */
 		49C0FDDCE9B1018ADD31139E /* Pods-ChatFirebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatFirebase.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChatFirebase/Pods-ChatFirebase.release.xcconfig"; sourceTree = "<group>"; };
 		D2C4E23D4F8240736063F849 /* Pods_ChatFirebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatFirebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC40C6F91F422FD4009AE3BA /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = SOURCE_ROOT; };
+		DC40C6FA1F422FD4009AE3BA /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = SOURCE_ROOT; };
 		DC4768861F406A890077500C /* ChatFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC4768891F406A890077500C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DC47688B1F406A890077500C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +78,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				106F41B3C8EB164CCD6977BF /* Pods_ChatFirebase.framework in Frameworks */,
+				DC40C6FC1F422FD4009AE3BA /* Crashlytics.framework in Frameworks */,
+				DC40C6FB1F422FD4009AE3BA /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +249,8 @@
 		DC4768B81F406E250077500C /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				DC40C6F91F422FD4009AE3BA /* Fabric.framework */,
+				DC40C6FA1F422FD4009AE3BA /* Crashlytics.framework */,
 				DC4768D11F4086CC0077500C /* R.generated.swift */,
 				DC4768BB1F4072EF0077500C /* Podfile */,
 				DC4768B91F406E250077500C /* GoogleService-Info.plist */,
@@ -306,6 +314,7 @@
 				6A9A624F11636C5D693A6C8F /* [CP] Embed Pods Frameworks */,
 				C573B43DA8C79568D90F50CA /* [CP] Copy Pods Resources */,
 				DC4768D01F4086B70077500C /* ShellScript */,
+				DC40C6F81F422F92009AE3BA /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -328,8 +337,7 @@
 				TargetAttributes = {
 					DC4768851F406A890077500C = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = 3RN7L9A98V;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -414,6 +422,19 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ChatFirebase/Pods-ChatFirebase-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		DC40C6F81F422F92009AE3BA /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run e6a17e157ed7228ceb834be09f8548f34b53a0ac d261c30c5091ce6bdb9bfa388b4a347678f1ed4d1dcb26772322776dd18217f1";
 		};
 		DC4768D01F4086B70077500C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -577,11 +598,16 @@
 			baseConfigurationReference = E6D3790B5457021D8AE0A9FC /* Pods-ChatFirebase.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 3RN7L9A98V;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = ChatFirebase/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = biz.growapp.ChatFirebase;
+				PRODUCT_BUNDLE_IDENTIFIER = biz.growapp.firebasechattapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -591,11 +617,18 @@
 			baseConfigurationReference = 49C0FDDCE9B1018ADD31139E /* Pods-ChatFirebase.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 3RN7L9A98V;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				DEVELOPMENT_TEAM = BJ8RUPKQ8G;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = ChatFirebase/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = biz.growapp.ChatFirebase;
+				PRODUCT_BUNDLE_IDENTIFIER = biz.growapp.firebasechattapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "3158ed63-86de-4cc2-94b2-b1d55946dd6d";
+				PROVISIONING_PROFILE_SPECIFIER = FirebaseChatApp_adhoc;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
