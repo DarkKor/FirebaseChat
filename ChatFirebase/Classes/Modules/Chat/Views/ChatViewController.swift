@@ -61,9 +61,8 @@ extension ChatViewController: ChatViewProtocol {
         if message.hasImage {
             loadImageIfNeeded(message)
         }
-        else {
-            finishReceivingMessage()
-        }
+        
+        finishReceivingMessage()
     }
     
     func messageDidUpdate(_ message: ChatMessageViewModel) {
@@ -165,7 +164,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         
         picker.dismiss(animated: true, completion:nil)
         
-        guard let photo = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+        guard let photo = (info[UIImagePickerControllerOriginalImage] as? UIImage)?.orientationFixed else {
             return
         }
         

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		106F41B3C8EB164CCD6977BF /* Pods_ChatFirebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2C4E23D4F8240736063F849 /* Pods_ChatFirebase.framework */; };
+		DC3A102C1F43E82D00CA48AE /* UIImage+Orientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3A102B1F43E82D00CA48AE /* UIImage+Orientation.swift */; };
 		DC40C6FB1F422FD4009AE3BA /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC40C6F91F422FD4009AE3BA /* Fabric.framework */; };
 		DC40C6FC1F422FD4009AE3BA /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC40C6FA1F422FD4009AE3BA /* Crashlytics.framework */; };
 		DC47688A1F406A890077500C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4768891F406A890077500C /* AppDelegate.swift */; };
@@ -40,6 +41,7 @@
 /* Begin PBXFileReference section */
 		49C0FDDCE9B1018ADD31139E /* Pods-ChatFirebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatFirebase.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChatFirebase/Pods-ChatFirebase.release.xcconfig"; sourceTree = "<group>"; };
 		D2C4E23D4F8240736063F849 /* Pods_ChatFirebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatFirebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC3A102B1F43E82D00CA48AE /* UIImage+Orientation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Orientation.swift"; sourceTree = "<group>"; };
 		DC40C6F91F422FD4009AE3BA /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = SOURCE_ROOT; };
 		DC40C6FA1F422FD4009AE3BA /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = SOURCE_ROOT; };
 		DC4768861F406A890077500C /* ChatFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +105,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DC3A102A1F43E81F00CA48AE /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				DC3A102B1F43E82D00CA48AE /* UIImage+Orientation.swift */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
 		DC47687D1F406A890077500C = {
 			isa = PBXGroup;
 			children = (
@@ -139,6 +149,7 @@
 		DC47689B1F406ADF0077500C /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				DC3A102A1F43E81F00CA48AE /* Categories */,
 				DC4768B31F406D7B0077500C /* Models */,
 				DC47689C1F406ADF0077500C /* Helpers */,
 				DC47689D1F406ADF0077500C /* Modules */,
@@ -337,6 +348,7 @@
 				TargetAttributes = {
 					DC4768851F406A890077500C = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = 3RN7L9A98V;
 						ProvisioningStyle = Manual;
 					};
 				};
@@ -464,6 +476,7 @@
 				DC4768F11F4113E30077500C /* ChatPresenter.swift in Sources */,
 				DC4768A61F406B320077500C /* ViewControllerProtocol.swift in Sources */,
 				DC4768B71F406D8E0077500C /* ChannelsPresenter.swift in Sources */,
+				DC3A102C1F43E82D00CA48AE /* UIImage+Orientation.swift in Sources */,
 				DC4768CE1F4086410077500C /* ChannelTableViewCell.swift in Sources */,
 				DC4768D21F4086CC0077500C /* R.generated.swift in Sources */,
 				DC47688C1F406A890077500C /* ViewController.swift in Sources */,
@@ -598,7 +611,7 @@
 			baseConfigurationReference = E6D3790B5457021D8AE0A9FC /* Pods-ChatFirebase.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3RN7L9A98V;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -607,7 +620,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = biz.growapp.firebasechattapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "475bffff-8301-4a87-bc76-556b491fe109";
+				PROVISIONING_PROFILE_SPECIFIER = common_dev;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
