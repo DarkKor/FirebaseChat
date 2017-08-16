@@ -20,12 +20,58 @@ class ChatMessageViewModel {
         
         self.text = message.text
         self.formattedDate = message.date.description
+        
+        if hasImage {
+            self.jsqMessage = JSQMessage(senderId: message.userId,
+                                         senderDisplayName: message.userName,
+                                         date: message.date,
+                                         media: JSQPhotoMediaItem(maskAsOutgoing: message.isOutgoing))
+        }
+        else {
+            self.jsqMessage = JSQMessage(senderId: message.userId,
+                                         senderDisplayName: message.userName,
+                                         date: message.date,
+                                         text: message.text)
+        }
     }
     
-    var toJSQMessage: JSQMessage? {
-        return JSQMessage(senderId: message.userId,
-                          senderDisplayName: "",
-                          date: message.date,
-                          text: message.text)
+    var jsqMessage: JSQMessage?
+    
+    var hasImage: Bool {
+        return message.photoURL != nil
+    }
+    
+    var isImageDownloaded: Bool {
+        guard hasImage else {
+            return false
+        }
+        guard let jsqMessage = jsqMessage else {
+            return false
+        }
+        guard let mediaItem = jsqMessage.media as? JSQPhotoMediaItem else {
+            return false
+        }
+        return mediaItem.image != nil
+    }
+    
+    var messageKey: String {
+        return message.key
+    }
+    
+    func loadImage(_ completion: @escaping (UIImage?) -> ()) {
+        ChatManager.shared.downloadImageFromStorage(message) { (image) in
+            guard let image = image else {
+                completion(nil)
+                return
+            }
+            (self.jsqMessage?.media as! JSQPhotoMediaItem).image = image
+            completion(image)
+        }
+    }
+}
+
+extension ChatMessageViewModel: Equatable {
+    public static func ==(lhs: ChatMessageViewModel, rhs: ChatMessageViewModel) -> Bool {
+        return lhs.messageKey == rhs.messageKey
     }
 }

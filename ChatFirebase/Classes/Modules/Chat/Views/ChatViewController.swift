@@ -7,13 +7,16 @@
 //
 
 import UIKit
+import Photos
+import PhotosUI
 import JSQMessagesViewController
 
 class ChatViewController: JSQMessagesViewController {
 
     var presenter: ChatPresenter!
     
-    fileprivate var messages = [JSQMessage]()
+    fileprivate var messages = [ChatMessageViewModel]()
+    fileprivate var photoMessageMap = [String: JSQPhotoMediaItem]()
     
     lazy var outgoingBubbleImageView: JSQMessagesBubbleImage = self.setupOutgoingBubble()
     lazy var incomingBubbleImageView: JSQMessagesBubbleImage = self.setupIncomingBubble()
@@ -35,34 +38,49 @@ class ChatViewController: JSQMessagesViewController {
         
         self.title = presenter.channelName
         
-        presenter.startObservingNewMessages()
+        presenter.startObservingMessages()
         
         collectionView!.collectionViewLayout.incomingAvatarViewSize = CGSize.zero
         collectionView!.collectionViewLayout.outgoingAvatarViewSize = CGSize.zero
+        
+        addBackButton()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        presenter.finishObservingNewMessages()
-    }
 
 }
 
+//  MARK: - ChatViewProtocol
 extension ChatViewController: ChatViewProtocol {
     func messageDidAdd(_ message: ChatMessageViewModel) {
-        if let jsqMessage = message.toJSQMessage {
-            messages.append(jsqMessage)
+        messages.append(message)
+        
+        if message.hasImage {
+            loadImageIfNeeded(message)
+        }
+        else {
             finishReceivingMessage()
         }
     }
+    
+    func messageDidUpdate(_ message: ChatMessageViewModel) {
+        if let index = messages.index(of: message) {
+            messages[index] = message
+        }
+        if message.hasImage {
+            loadImageIfNeeded(message)
+        }
+    }
+    
+    func imageWasUploaded() {
+        
+    }
 }
 
+//  MARK: - JSQMessagesViewController
 extension ChatViewController {
     func setupOutgoingBubble() -> JSQMessagesBubbleImage {
         let bubbleImageFactory = JSQMessagesBubbleImageFactory()
@@ -76,7 +94,7 @@ extension ChatViewController {
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!,
                                  messageDataForItemAt indexPath: IndexPath!) -> JSQMessageData! {
-        return messages[indexPath.item]
+        return messages[indexPath.item].jsqMessage!
     }
     
     override func collectionView(_ collectionView: UICollectionView,
@@ -86,7 +104,7 @@ extension ChatViewController {
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!,
                                  messageBubbleImageDataForItemAt indexPath: IndexPath!) -> JSQMessageBubbleImageDataSource! {
-        let message = messages[indexPath.item]
+        let message = messages[indexPath.item].jsqMessage!
         if message.senderId == senderId {
             return outgoingBubbleImageView
         }
@@ -103,7 +121,7 @@ extension ChatViewController {
     override func collectionView(_ collectionView: UICollectionView,
                                  cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! JSQMessagesCollectionViewCell
-        let message = messages[indexPath.item]
+        let message = messages[indexPath.item].jsqMessage!
         
         if message.senderId == senderId {
             cell.textView?.textColor = UIColor.white
@@ -113,6 +131,11 @@ extension ChatViewController {
         return cell
     }
     
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, didTapMessageBubbleAt indexPath: IndexPath!) {
+        let message = messages[indexPath.item]
+        print("\(message)")
+    }
+    
     override func didPressSend(_ button: UIButton!,
                                withMessageText text: String!,
                                senderId: String!,
@@ -120,6 +143,89 @@ extension ChatViewController {
                                date: Date!) {
         presenter.addMessage(text, date: date)
         finishSendingMessage()
+    }
+    
+    override func didPressAccessoryButton(_ sender: UIButton!) {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+//        if (UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera)) {
+//            picker.sourceType = .camera
+//        } else {
+            picker.sourceType = .photoLibrary
+//        }
+        
+        present(picker, animated: true, completion:nil)
+    }
+}
+
+// MARK: - Image Picker Delegate
+extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        picker.dismiss(animated: true, completion:nil)
+        
+        guard let photo = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+            return
+        }
+        
+        guard let key = presenter.addFakePhotoMessage(date: Date()) else {
+            return
+        }
+        
+        guard let data = UIImageJPEGRepresentation(photo, 1.0) else {
+            return
+        }
+        
+        self.presenter.uploadImage(data, completion: { (path) in
+            if let path = path {
+                self.presenter.updatePhotoMessage(key, with: path)
+            }
+        })
+        
+        finishSendingMessage()
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion:nil)
+    }
+}
+
+// MARK: - Private Methods
+private extension ChatViewController {
+    func addBackButton() {
+        let button = UIButton(frame: CGRect(x: 0.0, y: 0.0, width: 44.0, height: 44.0))
+        button.setTitle("Back", for: .normal)
+        button.showsTouchWhenHighlighted = true
+        button.addTarget(self, action: #selector(backButtonTouched(_:)), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
+        
+        navigationController?.navigationBar.backgroundColor = UIColor.black
+        navigationController?.navigationBar.barStyle = .black
+    }
+    
+    @objc func backButtonTouched(_ button: UIBarButtonItem) {
+        presenter.finishObservingMessages()
+        
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    func loadImageIfNeeded(_ message: ChatMessageViewModel) {
+        if !message.isImageDownloaded {
+            message.loadImage { (image) in
+                
+//                if let image = image {
+//                    print("this = \(message.jsqMessage!.messageHash())")
+//                    print("last = \(self.messages.last!.messageHash())")
+//                    print("--------")
+//                }
+//                else {
+//                    print("trying load NOTSET")
+//                }
+                
+                self.collectionView.reloadData()
+            }
+        }
     }
 }
 
