@@ -39,6 +39,7 @@ class ChatViewController: JSQMessagesViewController {
         self.title = presenter.channelName
         
         presenter.startObservingMessages()
+        presenter.startObservingTyping()
         
         collectionView!.collectionViewLayout.incomingAvatarViewSize = CGSize.zero
         collectionView!.collectionViewLayout.outgoingAvatarViewSize = CGSize.zero
@@ -51,6 +52,12 @@ class ChatViewController: JSQMessagesViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        presenter.setUserTyping(false)
+    }
+    
 }
 
 //  MARK: - ChatViewProtocol
@@ -72,6 +79,11 @@ extension ChatViewController: ChatViewProtocol {
         if message.hasImage {
             loadImageIfNeeded(message)
         }
+    }
+    
+    func userIsTyping(_ isTyping: Bool) {
+        self.showTypingIndicator = isTyping
+        self.scrollToBottom(animated: true)
     }
     
     func imageWasUploaded() {
@@ -130,9 +142,10 @@ extension ChatViewController {
         return cell
     }
     
-    override func collectionView(_ collectionView: JSQMessagesCollectionView!, didTapMessageBubbleAt indexPath: IndexPath!) {
-        let message = messages[indexPath.item]
-        print("\(message)")
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!,
+                                 didTapMessageBubbleAt indexPath: IndexPath!) {
+//        let message = messages[indexPath.item]
+//        print("\(message)")
     }
     
     override func didPressSend(_ button: UIButton!,
@@ -141,20 +154,37 @@ extension ChatViewController {
                                senderDisplayName: String!,
                                date: Date!) {
         presenter.addMessage(text, date: date)
+        
+        finishTyping()
+        
         finishSendingMessage()
     }
     
     override func didPressAccessoryButton(_ sender: UIButton!) {
         let picker = UIImagePickerController()
         picker.delegate = self
-//        if (UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera)) {
-//            picker.sourceType = .camera
-//        } else {
-            picker.sourceType = .photoLibrary
-//        }
-        
+        picker.sourceType = .photoLibrary
         present(picker, animated: true, completion:nil)
     }
+    
+    override func textViewDidBeginEditing(_ textView: UITextView) {
+        super.textViewDidBeginEditing(textView)
+        
+        startTyping()
+    }
+    
+    override func textViewDidChange(_ textView: UITextView) {
+        super.textViewDidChange(textView)
+        
+        typing()
+    }
+    
+    override func textViewDidEndEditing(_ textView: UITextView) {
+        super.textViewDidEndEditing(textView)
+        
+        finishTyping()
+    }
+    
 }
 
 // MARK: - Image Picker Delegate
@@ -204,7 +234,9 @@ private extension ChatViewController {
     }
     
     @objc func backButtonTouched(_ button: UIBarButtonItem) {
+        presenter.setUserTyping(false)
         presenter.finishObservingMessages()
+        presenter.finishObservingTyping()
         
         self.navigationController?.popViewController(animated: true)
     }
@@ -212,19 +244,30 @@ private extension ChatViewController {
     func loadImageIfNeeded(_ message: ChatMessageViewModel) {
         if !message.isImageDownloaded {
             message.loadImage { (image) in
-                
-//                if let image = image {
-//                    print("this = \(message.jsqMessage!.messageHash())")
-//                    print("last = \(self.messages.last!.messageHash())")
-//                    print("--------")
-//                }
-//                else {
-//                    print("trying load NOTSET")
-//                }
-                
                 self.collectionView.reloadData()
             }
         }
+    }
+    
+    func startTyping() {
+        self.perform(#selector(pauseTyping), with: nil, afterDelay: 1.0)
+    }
+    
+    func typing() {
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(pauseTyping), object: nil)
+        self.perform(#selector(pauseTyping), with: nil, afterDelay: 1.0)
+        
+        presenter.setUserTyping(true)
+    }
+    
+    @objc func pauseTyping() {
+        presenter.setUserTyping(false)
+    }
+    
+    func finishTyping() {
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(pauseTyping), object: nil)
+        
+        presenter.setUserTyping(false)
     }
 }
 

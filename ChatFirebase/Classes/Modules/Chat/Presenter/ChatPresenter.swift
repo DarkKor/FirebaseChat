@@ -13,6 +13,8 @@ protocol ChatViewProtocol {
     func messageDidAdd(_ message: ChatMessageViewModel)
     func messageDidUpdate(_ message: ChatMessageViewModel)
     
+    func userIsTyping(_ isTyping: Bool)
+    
     func imageWasUploaded()
 }
 
@@ -45,6 +47,20 @@ class ChatPresenter {
     func finishObservingMessages() {
         chatManager.finishObservingNewMessages()
         chatManager.finishObservingUpdatedMessages()
+    }
+    
+    func startObservingTyping() {
+        chatManager.startObservingTyping(in: channel) { [weak self] (isTyping) in
+            self?.view.userIsTyping(isTyping)
+        }
+    }
+    
+    func finishObservingTyping() {
+        chatManager.finishObservingTyping()
+    }
+    
+    func setUserTyping(_ isTyping: Bool) {
+        chatManager.notifyTyping(isTyping)
     }
 
     func addMessage(_ text: String, date: Date) {

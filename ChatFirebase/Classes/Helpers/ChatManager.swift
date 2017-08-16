@@ -24,9 +24,15 @@ class ChatManager {
     fileprivate var newMessageRefHandle: DatabaseHandle?
     fileprivate var updatedMessageRefHandle: DatabaseHandle?
     
+    //  Typing
+    fileprivate var userIsTypingRef: DatabaseReference?
+    fileprivate var typingRefHandle: DatabaseHandle?
+    
     //  Storage for images
     fileprivate lazy var storageRef: StorageReference = Storage.storage().reference(forURL: "gs://testchat-1e7c6.appspot.com")
     fileprivate let imageURLNotSetKey = "NOTSET"
+    
+    fileprivate var isTyping: Bool = false
     
     
     var senderId: String? {
@@ -53,6 +59,7 @@ class ChatManager {
     fileprivate var newChannelsObservingBlock: ((ChatChannel)->())?
     fileprivate var newMessagesObservingBlock: ((ChatMessage)->())?
     fileprivate var updatedMessagesObservingBlock: ((ChatMessage)->())?
+    fileprivate var userIsTypingObservingBlock: ((Bool)->())?
     
     deinit {
         removeObservers()
@@ -230,6 +237,31 @@ extension ChatManager {
     }
 }
 
+//  MARK: - Typing
+extension ChatManager {
+    func startObservingTyping(in channel: ChatChannel, completion: @escaping (Bool) -> ()) {
+        self.userIsTypingObservingBlock = completion
+        
+        self.userIsTypingRef = self.channelRef?.child("typingIndicator").child(channel.userId)
+        self.notifyTyping(false)
+        self.userIsTypingRef?.onDisconnectRemoveValue()
+        
+        self.createAnotherUserIsTypingObserver(in: channel)
+    }
+    
+    func finishObservingTyping() {
+        self.userIsTypingRef?.removeAllObservers()
+        self.userIsTypingObservingBlock = nil
+        self.userIsTypingRef = nil
+        self.typingRefHandle = nil
+    }
+    
+    func notifyTyping(_ isTyping: Bool) {
+        self.isTyping = isTyping
+        self.userIsTypingRef?.setValue(isTyping)
+    }
+}
+
 //  MARK: - Private Methods
 private extension ChatManager {
     func removeObservers() {
@@ -244,6 +276,9 @@ private extension ChatManager {
         }
         if let refHandle = updatedMessageRefHandle {
             messageRef?.removeObserver(withHandle: refHandle)
+        }
+        if let refHandle = typingRefHandle {
+            userIsTypingRef?.removeObserver(withHandle: refHandle)
         }
     }
     
@@ -320,6 +355,18 @@ private extension ChatManager {
                                           isOutgoing: id == self.uid)
                 self.updatedMessagesObservingBlock?(message)
             }
+        })
+    }
+    
+    func createAnotherUserIsTypingObserver(in channel: ChatChannel) {
+        let query = self.channelRef?.child("typingIndicator").queryOrderedByValue().queryEqual(toValue: true)
+        typingRefHandle = query?.observe(.value, with: { [weak self] (snapshot) in
+            guard let sself = self else { return }
+            if snapshot.childrenCount == 1 && sself.isTyping {
+                return
+            }
+            
+            sself.userIsTypingObservingBlock?(snapshot.childrenCount > 0)
         })
     }
     
