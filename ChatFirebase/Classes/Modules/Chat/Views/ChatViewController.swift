@@ -43,6 +43,7 @@ class ChatViewController: JSQMessagesViewController {
         collectionView!.collectionViewLayout.incomingAvatarViewSize = CGSize.zero
         collectionView!.collectionViewLayout.outgoingAvatarViewSize = CGSize.zero
         
+        addAccessoryInputButton()
         addBackButton()
     }
 
@@ -55,6 +56,12 @@ class ChatViewController: JSQMessagesViewController {
         super.viewWillAppear(animated)
         
         presenter.setUserTyping(false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        collectionView.collectionViewLayout.messageBubbleFont = UIFont(name: "HelveticaNeue-Light", size: 17)
     }
     
 }
@@ -113,9 +120,21 @@ extension ChatViewController {
     }
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!,
+                                 layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!,
+                                 heightForCellTopLabelAt indexPath: IndexPath!) -> CGFloat {
+        let message = messages[indexPath.item]
+        if message.isOutgoing {
+            return 0.0
+        }
+        else {
+            return 21.0
+        }
+    }
+    
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!,
                                  messageBubbleImageDataForItemAt indexPath: IndexPath!) -> JSQMessageBubbleImageDataSource! {
-        let message = messages[indexPath.item].jsqMessage!
-        if message.senderId == senderId {
+        let message = messages[indexPath.item]
+        if message.isOutgoing {
             return outgoingBubbleImageView
         }
         else {
@@ -131,13 +150,19 @@ extension ChatViewController {
     override func collectionView(_ collectionView: UICollectionView,
                                  cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! JSQMessagesCollectionViewCell
-        let message = messages[indexPath.item].jsqMessage!
+        let message = messages[indexPath.item]
         
-        if message.senderId == senderId {
+        if message.isOutgoing {
             cell.textView?.textColor = UIColor.white
         } else {
             cell.textView?.textColor = UIColor.black
+            
+            cell.cellTopLabel.font = UIFont(name: "HelveticeNeue-Light", size: 13)
+            cell.cellTopLabel.text = message.userDisplayName
+            cell.cellTopLabel.textAlignment = .left
+            cell.cellTopLabel.textInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
         }
+        
         return cell
     }
     
@@ -183,7 +208,6 @@ extension ChatViewController {
         
         finishTyping()
     }
-    
 }
 
 // MARK: - Image Picker Delegate
@@ -221,6 +245,15 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
 
 // MARK: - Private Methods
 private extension ChatViewController {
+    func addAccessoryInputButton() {
+        let button = UIButton(type: .custom)
+        button.setTitle("+", for: .normal)
+        button.setTitleColor(.gray, for: .normal)
+        button.frame = CGRect(x: 0, y: 0, width: 25, height: 44)
+        
+        inputToolbar.contentView.leftBarButtonItem = button
+    }
+    
     func addBackButton() {
         let button = UIButton(frame: CGRect(x: 0.0, y: 0.0, width: 44.0, height: 44.0))
         button.setTitle("Back", for: .normal)

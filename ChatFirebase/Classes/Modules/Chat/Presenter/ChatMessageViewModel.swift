@@ -11,16 +11,10 @@ import Kingfisher
 import JSQMessagesViewController
 
 class ChatMessageViewModel {
-    var text: String!
-    var formattedDate: String!
-    
     fileprivate var message: ChatMessage!
     
     init(message: ChatMessage) {
         self.message = message
-        
-        self.text = message.text
-        self.formattedDate = message.date.description
         
         if hasImage {
             self.jsqMessage = JSQMessage(senderId: message.userId,
@@ -37,6 +31,22 @@ class ChatMessageViewModel {
     }
     
     var jsqMessage: JSQMessage?
+    
+    var isOutgoing: Bool {
+        return message.isOutgoing
+    }
+    
+    var text: String! {
+        return message.text
+    }
+    
+    var userDisplayName: String! {
+        return message.userName
+    }
+    
+    var formattedDate: String! {
+        return message.date.description
+    }
     
     var hasImage: Bool {
         return message.photoURL != nil
