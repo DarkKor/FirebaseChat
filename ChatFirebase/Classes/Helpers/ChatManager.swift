@@ -34,6 +34,8 @@ class ChatManager {
     
     fileprivate var isTyping: Bool = false
     
+    fileprivate let itemsCount: UInt = 100
+    
     
     var senderId: String? {
         return Auth.auth().currentUser?.uid
@@ -250,6 +252,7 @@ extension ChatManager {
     }
     
     func finishObservingTyping() {
+        self.channelRef?.child("typingIndicator").removeAllObservers()
         self.userIsTypingRef?.removeAllObservers()
         self.userIsTypingObservingBlock = nil
         self.userIsTypingRef = nil
@@ -304,20 +307,20 @@ private extension ChatManager {
         }
         
         //  Owner's channels
-        let myQ = channelsRef.queryOrdered(byChild: "userId").queryEqual(toValue: uid).queryLimited(toLast: 25)
+        let myQ = channelsRef.queryOrdered(byChild: "userId").queryEqual(toValue: uid).queryLimited(toLast: itemsCount)
         myChannelsRefHandle = myQ.observe(.childAdded, with: { (snapshot) in
             block(snapshot)
         })
         
         //  Recipient's channels
-        let meQ = channelsRef.queryOrdered(byChild: "anotherUserId").queryEqual(toValue: uid).queryLimited(toLast: 25)
+        let meQ = channelsRef.queryOrdered(byChild: "anotherUserId").queryEqual(toValue: uid).queryLimited(toLast: itemsCount)
         meInChannelsRefHandle = meQ.observe(.childAdded, with: { (snapshot) in
             block(snapshot)
         })
     }
     
     func createNewMessagesObserver() {
-        let newMessagesQuery = self.messageRef?.queryLimited(toLast: 25)
+        let newMessagesQuery = self.messageRef?.queryLimited(toLast: itemsCount)
         self.newMessageRefHandle = newMessagesQuery?.observe(.childAdded, with: { (snapshot) -> Void in
             let messageData = snapshot.value as! Dictionary<String, Any>
             
@@ -338,7 +341,7 @@ private extension ChatManager {
     }
     
     func createUpdatedMessagesObserver() {
-        let updatedMessagesQuery = self.messageRef?.queryLimited(toLast: 25)
+        let updatedMessagesQuery = self.messageRef?.queryLimited(toLast: itemsCount)
         self.updatedMessageRefHandle = updatedMessagesQuery?.observe(.childChanged, with: { (snapshot) -> Void in
             let messageData = snapshot.value as! Dictionary<String, Any>
             

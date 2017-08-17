@@ -39,7 +39,6 @@ class ChatViewController: JSQMessagesViewController {
         self.title = presenter.channelName
         
         presenter.startObservingMessages()
-        presenter.startObservingTyping()
         
         collectionView!.collectionViewLayout.incomingAvatarViewSize = CGSize.zero
         collectionView!.collectionViewLayout.outgoingAvatarViewSize = CGSize.zero
@@ -236,7 +235,6 @@ private extension ChatViewController {
     @objc func backButtonTouched(_ button: UIBarButtonItem) {
         presenter.setUserTyping(false)
         presenter.finishObservingMessages()
-        presenter.finishObservingTyping()
         
         self.navigationController?.popViewController(animated: true)
     }

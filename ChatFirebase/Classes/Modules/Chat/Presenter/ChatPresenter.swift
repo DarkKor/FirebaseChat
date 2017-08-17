@@ -42,20 +42,14 @@ class ChatPresenter {
             let messageViewModel = ChatMessageViewModel(message: message)
             self?.view.messageDidUpdate(messageViewModel)
         }
-    }
-    
-    func finishObservingMessages() {
-        chatManager.finishObservingNewMessages()
-        chatManager.finishObservingUpdatedMessages()
-    }
-    
-    func startObservingTyping() {
         chatManager.startObservingTyping(in: channel) { [weak self] (isTyping) in
             self?.view.userIsTyping(isTyping)
         }
     }
     
-    func finishObservingTyping() {
+    func finishObservingMessages() {
+        chatManager.finishObservingNewMessages()
+        chatManager.finishObservingUpdatedMessages()
         chatManager.finishObservingTyping()
     }
     

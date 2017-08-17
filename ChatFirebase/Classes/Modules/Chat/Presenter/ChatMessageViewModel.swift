@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 import JSQMessagesViewController
 
 class ChatMessageViewModel {
@@ -59,14 +60,42 @@ class ChatMessageViewModel {
     }
     
     func loadImage(_ completion: @escaping (UIImage?) -> ()) {
-        ChatManager.shared.downloadImageFromStorage(message) { (image) in
-            guard let image = image else {
-                completion(nil)
-                return
-            }
+        if let image = imageFromCache {
             (self.jsqMessage?.media as! JSQPhotoMediaItem).image = image
             completion(image)
         }
+        else {
+            ChatManager.shared.downloadImageFromStorage(message) { (image) in
+                guard let image = image else {
+                    completion(nil)
+                    return
+                }
+                (self.jsqMessage?.media as! JSQPhotoMediaItem).image = image
+                self.storeImage(image)
+                completion(image)
+            }
+        }
+    }
+    
+    private var imageFromCache: UIImage? {
+        guard let key = message.photoURL else {
+            return nil
+        }
+        
+        var image = KingfisherManager.shared.cache.retrieveImageInDiskCache(forKey: key)
+        if image == nil {
+            image = KingfisherManager.shared.cache.retrieveImageInMemoryCache(forKey: key)
+        }
+        
+        return image
+    }
+    
+    private func storeImage(_ image: UIImage) {
+        guard let key = message.photoURL else {
+            return
+        }
+        
+        KingfisherManager.shared.cache.store(image, forKey: key)
     }
 }
 
